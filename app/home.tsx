@@ -40,7 +40,7 @@ export default function HomeScreen() {
     });
 
     if (isLoggedIn && user) {
-      router.replace("/profile");
+      router.replace("/(tabs)");
     }
   }, [isLoggedIn, user]);
 
@@ -86,7 +86,7 @@ export default function HomeScreen() {
         picture: googleUser.photo,
       });
 
-      router.replace("/profile");
+      router.replace("/(tabs)");
     } catch (err: any) {
       if (err.code === statusCodes.SIGN_IN_CANCELLED) {
         setError("Sign-in cancelled");
