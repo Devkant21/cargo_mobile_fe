@@ -1,31 +1,58 @@
+import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
-export type ServiceType = "home" | "items";
-
-interface ServiceTypeSelectorProps {
-  selectedService: ServiceType;
-  onSelect: (service: ServiceType) => void;
+interface MovementType {
+  id: number;
+  name: string;
+  description: string;
+  min_fare: number;
+  labour_capacity: number;
+  price_per_labour: number;
+  driver_assist_charge: number;
+  additional_trip_fee: number;
+  is_active: boolean;
 }
 
-const SERVICES = [
-  {
-    id: "home" as const,
-    title: "Home Furniture Moving",
-    description: "Moving of home furniture, appliances & more",
-    emoji: "🏠",
-  },
-  {
-    id: "items" as const,
-    title: "Items Moving",
-    description: "Delivery of boxes, parcels & other items",
-    emoji: "📦",
-  },
-];
+interface ServiceTypeSelectorProps {
+  selectedService: string;
+  onSelect: (serviceId: string) => void;
+}
+
+const movementIcons: Record<number, string> = {
+  1: "🏠",
+  2: "🏢",
+};
 
 export default function ServiceTypeSelector({
   selectedService,
   onSelect,
 }: ServiceTypeSelectorProps) {
+  const [movementTypes, setMovementTypes] = useState<MovementType[]>([]);
+
+  useEffect(() => {
+    const getMovementTypes = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/v1/get-movements-type`,
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+          setMovementTypes(data.data);
+
+          if (!selectedService && data.data.length > 0) {
+            onSelect(data.data[0].id.toString());
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch movement types:", error);
+      }
+    };
+
+    getMovementTypes();
+  }, []);
+
   return (
     <View>
       <Text className="mb-3 text-xl font-semibold text-zinc-900">
@@ -33,14 +60,14 @@ export default function ServiceTypeSelector({
       </Text>
 
       <View className="flex-row gap-3">
-        {SERVICES.map((service) => {
-          const selected = selectedService === service.id;
+        {movementTypes.map((service) => {
+          const selected = selectedService === service.id.toString();
 
           return (
             <TouchableOpacity
               key={service.id}
               activeOpacity={0.8}
-              onPress={() => onSelect(service.id)}
+              onPress={() => onSelect(service.id.toString())}
               className={`flex-1 rounded-3xl border p-4 ${
                 selected
                   ? "border-green-500 bg-green-50"
@@ -48,9 +75,8 @@ export default function ServiceTypeSelector({
               }`}
             >
               <View className="flex-row items-end gap-2">
-                {/* Radio */}
                 <View
-                  className={`h-7 w-7 rounded-full border-2 items-center justify-center ${
+                  className={`h-7 w-7 items-center justify-center rounded-full border-2 ${
                     selected ? "border-green-500" : "border-zinc-300"
                   }`}
                 >
@@ -59,13 +85,13 @@ export default function ServiceTypeSelector({
                   )}
                 </View>
 
-                {/* Icon */}
-                <Text className="text-4xl">{service.emoji}</Text>
+                <Text className="text-4xl">
+                  {movementIcons[service.id] ?? "🚚"}
+                </Text>
               </View>
 
-              {/* Content */}
               <Text className="mt-3 text-base font-semibold text-zinc-900">
-                {service.title}
+                {service.name}
               </Text>
 
               <Text className="mt-2 text-sm leading-5 text-zinc-500">
