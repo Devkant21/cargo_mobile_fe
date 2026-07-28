@@ -19,6 +19,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AdditionalServicesCard from "@/components/cards/AdditionalServicesCard";
 
 export default function Landing() {
   const { user } = useAuthStore();
@@ -27,7 +28,10 @@ export default function Landing() {
   const [detectingLocation, setDetectingLocation] = useState(true);
   const [dropoff, setDropoff] = useState("");
   const [contactNumber, setContactNumber] = useState(user?.phoneNumber ?? "");
-  const [serviceType, setServiceType] = useState<"home" | "items">("home");
+  const [serviceType, setServiceType] = useState("");
+
+  const [helpers, setHelpers] = useState(0);
+  // const [driverAssistance, setDriverAssistance] = useState(false);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<Date | null>(null);
@@ -47,7 +51,7 @@ export default function Landing() {
     movementType: "",
   });
 
-  const [selectedVehicle, setSelectedVehicle] = useState("pickup");
+  const [selectedVehicle, setSelectedVehicle] = useState("");
 
   const [showModal, setShowModal] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
@@ -80,6 +84,10 @@ export default function Landing() {
         name: user?.fullName ?? "",
         vehicle: selectedVehicle,
         serviceType,
+
+        helpers: helpers.toString(),
+        // driverAssistance: driverAssistance ? "true" : "false",
+        driverAssistance: "false",
       },
     });
   };
@@ -276,6 +284,21 @@ export default function Landing() {
             <ServiceTypeSelector
               selectedService={serviceType}
               onSelect={setServiceType}
+            />
+          </Animated.View>
+
+          <Animated.View
+            entering={FadeInDown.duration(450).delay(300)}
+            className="mt-4"
+          >
+            <AdditionalServicesCard
+              helpers={helpers}
+              maxHelpers={5}
+              helperPrice={1000}
+              // driverAssistance={driverAssistance}
+              // driverAssistPrice={800}
+              onHelpersChange={setHelpers}
+              // onDriverAssistanceChange={setDriverAssistance}
             />
           </Animated.View>
 
