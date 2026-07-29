@@ -252,12 +252,12 @@ function InfoRow({ label, value }: InfoRowProps) {
         </Text>
       </View>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         disabled
         className="h-10 w-10 items-center justify-center rounded-full bg-zinc-100"
       >
         <Ionicons name="create-outline" size={18} color="#a1a1aa" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 }

@@ -21,6 +21,18 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import AdditionalServicesCard from "@/components/cards/AdditionalServicesCard";
 
+interface MovementType {
+  id: number;
+  name: string;
+  description: string;
+  min_fare: number;
+  labour_capacity: number;
+  price_per_labour: number;
+  driver_assist_charge: number;
+  additional_trip_fee: number;
+  is_active: boolean;
+}
+
 export default function Landing() {
   const { user } = useAuthStore();
 
@@ -29,6 +41,10 @@ export default function Landing() {
   const [dropoff, setDropoff] = useState("");
   const [contactNumber, setContactNumber] = useState(user?.phoneNumber ?? "");
   const [serviceType, setServiceType] = useState("");
+
+  const [selectedMovement, setSelectedMovement] = useState<MovementType | null>(
+    null,
+  );
 
   const [helpers, setHelpers] = useState(0);
   // const [driverAssistance, setDriverAssistance] = useState(false);
@@ -87,6 +103,7 @@ export default function Landing() {
 
         helpers: helpers.toString(),
         // driverAssistance: driverAssistance ? "true" : "false",
+        helperPrice: selectedMovement?.price_per_labour.toString() ?? "0",
         driverAssistance: "false",
       },
     });
@@ -283,7 +300,10 @@ export default function Landing() {
           >
             <ServiceTypeSelector
               selectedService={serviceType}
-              onSelect={setServiceType}
+              onSelect={(movement) => {
+                setServiceType(movement.id.toString());
+                setSelectedMovement(movement);
+              }}
             />
           </Animated.View>
 
@@ -294,7 +314,7 @@ export default function Landing() {
             <AdditionalServicesCard
               helpers={helpers}
               maxHelpers={5}
-              helperPrice={1000}
+              helperPrice={800}
               // driverAssistance={driverAssistance}
               // driverAssistPrice={800}
               onHelpersChange={setHelpers}

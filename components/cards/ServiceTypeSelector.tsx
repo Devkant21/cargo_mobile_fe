@@ -15,7 +15,7 @@ interface MovementType {
 
 interface ServiceTypeSelectorProps {
   selectedService: string;
-  onSelect: (serviceId: string) => void;
+  onSelect: (movement: MovementType) => void;
 }
 
 const movementIcons: Record<number, string> = {
@@ -42,7 +42,7 @@ export default function ServiceTypeSelector({
           setMovementTypes(data.data);
 
           if (!selectedService && data.data.length > 0) {
-            onSelect(data.data[0].id.toString());
+            onSelect(data.data[0]);
           }
         }
       } catch (error) {
@@ -67,7 +67,7 @@ export default function ServiceTypeSelector({
             <TouchableOpacity
               key={service.id}
               activeOpacity={0.8}
-              onPress={() => onSelect(service.id.toString())}
+              onPress={() => onSelect(service)}
               className={`flex-1 rounded-3xl border p-4 ${
                 selected
                   ? "border-green-500 bg-green-50"

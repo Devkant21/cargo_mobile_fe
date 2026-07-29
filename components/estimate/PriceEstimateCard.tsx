@@ -1,25 +1,59 @@
 import { ActivityIndicator, Text, View } from "react-native";
 
-interface FareBreakdown {
+type FareBreakdown = {
   baseFare: number;
   timeCharge: number;
-  tolls: number;
-  terrainCharge: number;
   labourCharge: number;
+  driverAssistCharge: number;
+  terrainCharge: number;
+  intercityCharge: number;
+  internationalCharge: number;
+  nightDrivingCharge: number;
+  nightSurcharge: number;
+  overnightCharge: number;
+  tolls: number;
   gst: number;
   total: number;
-}
+};
 
 interface PriceEstimateCardProps {
   breakdown?: FareBreakdown;
   loading?: boolean;
+  helperPrice?: number;
+  helperCount?: number;
 }
 
-const formatPrice = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
+const formatPrice = (amount: number) =>
+  `₹${amount.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+type PriceRowProps = {
+  label: string;
+  amount: number;
+  show?: boolean;
+};
+
+function PriceRow({ label, amount, show = true }: PriceRowProps) {
+  if (!show) return null;
+
+  return (
+    <View className="flex-row items-center justify-between border-t border-zinc-100 py-3">
+      <Text className="text-base text-zinc-700">{label}</Text>
+
+      <Text className="text-base font-semibold text-zinc-900">
+        {formatPrice(amount)}
+      </Text>
+    </View>
+  );
+}
 
 export default function PriceEstimateCard({
   breakdown,
   loading,
+  helperPrice = 800,
+  helperCount = 0,
 }: PriceEstimateCardProps) {
   if (!breakdown) {
     return (
@@ -33,8 +67,8 @@ export default function PriceEstimateCard({
     );
   }
 
-  const transportation =
-    breakdown.baseFare + breakdown.timeCharge + breakdown.terrainCharge;
+  const transportationFare = breakdown.baseFare + breakdown.timeCharge;
+  const helperTotal = helperCount * helperPrice;
 
   return (
     <View className="mx-3 mt-2 rounded-3xl border border-zinc-200 bg-white p-5">
@@ -55,45 +89,59 @@ export default function PriceEstimateCard({
       )}
 
       <View className="mt-6">
-        {/* Transportation */}
-        <View className="flex-row items-center justify-between py-3">
-          <Text className="text-base text-zinc-700">Transportation</Text>
+        <PriceRow label="Transportation" amount={transportationFare} />
 
-          <Text className="text-base font-semibold text-zinc-900">
-            {formatPrice(transportation)}
-          </Text>
-        </View>
+        <PriceRow label="Helpers" amount={helperTotal} show={helperCount > 0} />
 
-        {/* Helpers */}
-        {breakdown.labourCharge > 0 && (
-          <View className="flex-row items-center justify-between border-t border-zinc-100 py-3">
-            <Text className="text-base text-zinc-700">Helpers</Text>
+        <PriceRow
+          label="Driver Assistance"
+          amount={breakdown.driverAssistCharge}
+          show={breakdown.driverAssistCharge > 0}
+        />
 
-            <Text className="text-base font-semibold text-zinc-900">
-              {formatPrice(breakdown.labourCharge)}
-            </Text>
-          </View>
-        )}
+        <PriceRow
+          label="Terrain Charge"
+          amount={breakdown.terrainCharge}
+          show={breakdown.terrainCharge > 0}
+        />
 
-        {/* Tolls */}
-        {breakdown.tolls > 0 && (
-          <View className="flex-row items-center justify-between border-t border-zinc-100 py-3">
-            <Text className="text-base text-zinc-700">Tolls</Text>
+        <PriceRow
+          label="Intercity Charge"
+          amount={breakdown.intercityCharge}
+          show={breakdown.intercityCharge > 0}
+        />
 
-            <Text className="text-base font-semibold text-zinc-900">
-              {formatPrice(breakdown.tolls)}
-            </Text>
-          </View>
-        )}
+        <PriceRow
+          label="International Charge"
+          amount={breakdown.internationalCharge}
+          show={breakdown.internationalCharge > 0}
+        />
 
-        {/* GST */}
-        <View className="flex-row items-center justify-between border-t border-zinc-100 py-3">
-          <Text className="text-base text-zinc-700">GST</Text>
+        <PriceRow
+          label="Night Driving"
+          amount={breakdown.nightDrivingCharge}
+          show={breakdown.nightDrivingCharge > 0}
+        />
 
-          <Text className="text-base font-semibold text-zinc-900">
-            {formatPrice(breakdown.gst)}
-          </Text>
-        </View>
+        <PriceRow
+          label="Night Surcharge"
+          amount={breakdown.nightSurcharge}
+          show={breakdown.nightSurcharge > 0}
+        />
+
+        <PriceRow
+          label="Overnight Charge"
+          amount={breakdown.overnightCharge}
+          show={breakdown.overnightCharge > 0}
+        />
+
+        <PriceRow
+          label="Tolls"
+          amount={breakdown.tolls}
+          show={breakdown.tolls > 0}
+        />
+
+        <PriceRow label="GST" amount={breakdown.gst} />
       </View>
 
       <View className="mt-4 rounded-2xl bg-green-50 px-5 py-4">
