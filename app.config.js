@@ -5,7 +5,7 @@ export default {
     name: "Sturm",
     slug: "sturm-user",
     scheme: "sturmuser",
-    version: "1.1.0",
+    version: "1.1.1",
     orientation: "portrait",
     icon: "./assets/images/applogo.png",
     userInterfaceStyle: "automatic",

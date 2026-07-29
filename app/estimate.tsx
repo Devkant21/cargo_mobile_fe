@@ -21,10 +21,15 @@ type PaymentMethod = "upi" | "cash";
 type FareBreakdown = {
   baseFare: number;
   timeCharge: number;
-  tolls: number;
-  terrainCharge: number;
   labourCharge: number;
   driverAssistCharge: number;
+  terrainCharge: number;
+  intercityCharge: number;
+  internationalCharge: number;
+  nightDrivingCharge: number;
+  nightSurcharge: number;
+  overnightCharge: number;
+  tolls: number;
   gst: number;
   total: number;
 };
@@ -53,6 +58,7 @@ export default function EstimatePage() {
     vehicle,
     serviceType,
     helpers,
+    helperPrice,
     driverAssistance,
   } = useLocalSearchParams<{
     pickup: string;
@@ -64,9 +70,11 @@ export default function EstimatePage() {
     vehicle: string;
     serviceType: string;
     helpers: string;
+    helperPrice: string;
     driverAssistance: string;
   }>();
   const [helperCount, setHelperCount] = useState(Number(helpers ?? "0"));
+  const labourPrice = Number(helperPrice ?? "0");
 
   const hasDriverAssistance = driverAssistance === "true";
 
@@ -104,6 +112,7 @@ export default function EstimatePage() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(payload),
           },
@@ -111,7 +120,9 @@ export default function EstimatePage() {
 
         const data = await response.json();
 
-        console.log("Trip Response:\n", JSON.stringify(data, null, 2));
+        // console.log("Labour charge:", data.data.fare_breakdown.labour_charge);
+
+        // console.log("Trip Response:\n", JSON.stringify(data, null, 2));
 
         if (!data.success) {
           Alert.alert("Fare Error", data.message);
@@ -126,10 +137,18 @@ export default function EstimatePage() {
           breakdown: {
             baseFare: data.data.fare_breakdown.base_fare,
             timeCharge: data.data.fare_breakdown.time_charge,
-            tolls: data.data.fare_breakdown.tolls_total,
-            terrainCharge: data.data.fare_breakdown.terrain_charge,
+
             labourCharge: data.data.fare_breakdown.labour_charge,
             driverAssistCharge: data.data.fare_breakdown.driver_assist_charge,
+
+            terrainCharge: data.data.fare_breakdown.terrain_charge,
+            intercityCharge: data.data.fare_breakdown.intercity_charge,
+            internationalCharge: data.data.fare_breakdown.international_charge,
+            nightDrivingCharge: data.data.fare_breakdown.night_driving_charge,
+            nightSurcharge: data.data.fare_breakdown.night_surcharge,
+            overnightCharge: data.data.fare_breakdown.overnight_charge,
+
+            tolls: data.data.fare_breakdown.tolls_total,
             gst: data.data.fare_breakdown.gst_amount,
             total: data.data.fare_breakdown.final_fare_inr,
           },
@@ -297,7 +316,7 @@ export default function EstimatePage() {
 
           <HelperSelectorCard
             helperCount={helperCount}
-            helperPrice={1000}
+            helperPrice={labourPrice}
             loading={!fareData}
             maxHelpers={5}
             onIncrease={() => setHelperCount((prev) => Math.min(prev + 1, 5))}
@@ -307,6 +326,8 @@ export default function EstimatePage() {
           <PriceEstimateCard
             breakdown={fareData?.breakdown}
             loading={fareLoading}
+            helperPrice={labourPrice}
+            helperCount={helperCount}
           />
 
           <PaymentMethodCard
